@@ -1,0 +1,11 @@
+﻿{
+  "_meta": "Workspace root. Defines npm/pnpm workspaces for apps/* and packages/*. Shared TypeScript types in packages/shared-types are consumed by apps/desktop and apps/web without publishing.",
+  "name": "acadexa",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
+

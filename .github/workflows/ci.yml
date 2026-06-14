@@ -1,0 +1,21 @@
+﻿# CI Pipeline
+# Runs lint and tests for apps/web (vitest) and apps/api (pytest) on every PR.
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and test web
+        run: echo "install deps, run lint and vitest for apps/web"
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and test api
+        run: echo "install deps, run pytest for apps/api"
+

@@ -1,0 +1,10 @@
+﻿{
+  "_meta": "Monorepo task runner config (Turborepo). Defines build/lint/test pipelines that run across apps/* and packages/* respecting dependency graph.",
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": { "dependsOn": ["^build"] },
+    "lint": {},
+    "test": {}
+  }
+}
+

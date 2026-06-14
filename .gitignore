@@ -1,0 +1,150 @@
+﻿# ============================================
+# Acadexa - Professional .gitignore (Final)
+# ============================================
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.npm/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Poetry (lock file should be committed - NOT ignored)
+# poetry.lock  # <--- removed from ignore
+
+# Build outputs
+dist/
+build/
+out/
+release/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+.secrets/
+credentials.json
+
+# Supabase (if using Supabase CLI)
+.supabase/
+
+# IDE
+.vscode/
+.idea/
+.history/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pm2/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+*.test-results.json
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# Electron
+electron-builder-output/
+
+# Monorepo
+.turbo/
+.nx/
+
+# Prisma (if ever used)
+.prisma/
+
+# GitHub Actions
+!.github/workflows/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Certificates
+*.p12
+*.pfx
+
+# Application specific
+apps/desktop/resources/*.png
+apps/desktop/resources/*.ico
+!apps/desktop/resources/.gitkeep
+apps/web/public/*.png
+!apps/web/public/.gitkeep
+
+# React environment files
+*.local
+
+# Excel files
+*.xlsx
+*.xls
+
+# Large files
+*.zip
+*.tar.gz
+*.7z

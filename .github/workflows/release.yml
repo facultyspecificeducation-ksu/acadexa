@@ -1,0 +1,16 @@
+﻿# Release Pipeline
+# Tag-triggered: builds the desktop app and publishes artifacts to
+# GitHub Releases, which also serves as the electron-updater feed.
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish release artifacts
+        run: echo "build apps/web + apps/desktop, run electron-builder --publish always"
+

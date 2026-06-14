@@ -1,0 +1,29 @@
+﻿# Root Docker Compose
+# Spins up the local Supabase/Postgres stack plus the FastAPI backend (apps/api)
+# for local development. The web renderer (apps/web) and desktop shell
+# (apps/desktop) are run via their own dev servers, not via this file.
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    container_name: acadexa_postgres
+    environment:
+      POSTGRES_USER: acadexa
+      POSTGRES_PASSWORD: acadexa
+      POSTGRES_DB: acadexa
+    ports:
+      - "5432:5432"
+    volumes:
+      - acadexa_pgdata:/var/lib/postgresql/data
+  api:
+    build: ./apps/api
+    container_name: acadexa_api
+    depends_on:
+      - db
+    env_file:
+      - ./apps/api/.env.example
+    ports:
+      - "8000:8000"
+volumes:
+  acadexa_pgdata:
+

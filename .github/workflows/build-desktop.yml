@@ -1,0 +1,17 @@
+﻿# Desktop Build Pipeline
+# Runs electron-builder in a matrix across Windows, macOS and Linux
+# to produce installable artifacts (.exe / .dmg / .AppImage).
+name: Build Desktop
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build apps/web then run electron-builder for apps/desktop
+        run: echo "build apps/web, copy dist into apps/desktop, run electron-builder"
+

@@ -1,0 +1,11 @@
+﻿{
+  "_meta": "React renderer package (Vite + MUI + RTL + Zustand + React Router + RHF/Zod). Depends on @acadexa/shared-types and @acadexa/ui-kit.",
+  "name": "@acadexa/web",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest"
+  }
+}
+

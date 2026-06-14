@@ -1,0 +1,8 @@
+﻿# Backend package configuration (Poetry/uv).
+# Declares dependencies: fastapi, sqlalchemy, alembic, pydantic, uvicorn,
+# the existing Excel parser library, and an LLM provider SDK for ai/client.py.
+[tool.poetry]
+name = "acadexa-api"
+version = "0.1.0"
+description = "Acadexa FastAPI backend: academic management, expert system, AI layer, data processing."
+

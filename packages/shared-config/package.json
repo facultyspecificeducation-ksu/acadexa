@@ -1,0 +1,6 @@
+﻿{
+  "_meta": "Shared ESLint/Prettier/TypeScript base configuration consumed by apps/web and apps/desktop to keep code style consistent across the monorepo.",
+  "name": "@acadexa/shared-config",
+  "version": "0.1.0"
+}
+

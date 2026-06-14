@@ -1,0 +1,11 @@
+﻿{
+  "_meta": "Base TypeScript configuration extended by apps/web and apps/desktop tsconfig.json files.",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
+

@@ -1,0 +1,7 @@
+﻿{
+  "_meta": "Shared MUI components and theme tokens reused across apps/web feature modules (e.g. styled DataGrid wrappers, RTL-aware layout primitives).",
+  "name": "@acadexa/ui-kit",
+  "version": "0.1.0",
+  "main": "src/index.ts"
+}
+

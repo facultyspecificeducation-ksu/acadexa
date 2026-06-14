@@ -1,0 +1,7 @@
+﻿{
+  "_meta": "Shared TypeScript contracts (DTOs, enums) consumed by apps/desktop and apps/web. Mirrors the Pydantic schemas in apps/api/app/schemas.",
+  "name": "@acadexa/shared-types",
+  "version": "0.1.0",
+  "main": "src/index.ts"
+}
+

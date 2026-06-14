@@ -1,0 +1,22 @@
+﻿# Local development compose for apps/api only:
+# Postgres database + the FastAPI API container, used when developing
+# the backend in isolation from apps/web and apps/desktop.
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: acadexa
+      POSTGRES_PASSWORD: acadexa
+      POSTGRES_DB: acadexa
+    ports:
+      - "5432:5432"
+  api:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env.example
+    ports:
+      - "8000:8000"
+
