@@ -1,4 +1,4 @@
-﻿# 🎓 ACADEXA — Intelligent Academic Advising Desktop Application
+﻿# ACADEXA — Intelligent Academic Advising Desktop Application
 
 ![Acadexa Logo](docs/images/Acadexa_Logo.png)
 
@@ -16,41 +16,70 @@
 
 ---
 
-## 📌 Project Overview
+## 📚 Table of Contents
 
-**ACADEXA** is an intelligent academic advising desktop application designed to help universities move beyond simple data storage. It combines traditional academic management (students, courses, transcripts) with a **Dynamic Expert System (ES)** engine that mimics human expert reasoning.
-
-> 🎯 **Core Philosophy:** Instead of just answering "What is the student's GPA?", ACADEXA answers **"Why is the student at risk?"** and **"What should they do next?"**
-
-ACADEXA is treated as a **multi-process monorepo product**, not a single app. Three runtimes stay decoupled but type-safe with each other:
-
-1. **Electron Desktop Shell** — owns OS-level concerns (windows, file system, printing, notifications, auto-update).
-2. **React Renderer (Acadexa Web UI)** — the application UI, built with Vite, MUI (RTL), Zustand, React Router, React Hook Form + Zod.
-3. **FastAPI Backend** — the brain: database access, Expert System, AI layer, data ingestion, reporting.
-
-The Electron app is a thin native shell around the React renderer, which talks to the FastAPI backend over HTTP/REST (and optionally WebSockets for live notifications). The backend can run locally (bundled as a sidecar process) or remotely (cloud-hosted FastAPI + Supabase) — the architecture supports both without code changes, only configuration.
-
-Two architectural principles drive every folder decision:
-
-- **Feature-based modularity** — code is grouped by business capability (`expert-system`, `reports`), not by technical type (`students`, `controllers`, `components`). This keeps each module independently testable and replaceable.
-- **Strict layering** — UI → State → API client → Backend Router → Service → Repository/ORM → DB. No layer is skipped. The Expert System and AI layer sit as services consumed by routers, never embedded in routers directly.
-
-### ✨ Key Differentiators
-
-| Feature | Traditional SIS | ACADEXA |
-| :--- | :--- | :--- |
-| Data Storage | ✅ Yes | ✅ Yes |
-| GPA Calculation | ✅ Yes | ✅ Yes |
-| Prerequisite Checking | ❌ Manual | ✅ **Automatic** |
-| Academic Risk Detection | ❌ No | ✅ **Expert System** |
-| Graduation Eligibility | ❌ Manual Audit | ✅ **Instant Check** |
-| Explainable AI | ❌ No | ✅ **Evidence-Based** |
-| Offline Desktop | ❌ No | ✅ **Electron Native** |
-| Arabic RTL Support | ❌ Rare | ✅ **Full Support** |
+1. [Project Overview](#-project-overview)
+2. [Current Tech Stack](#-current-tech-stack)
+3. [System Architecture](#-system-architecture)
+4. [Database Documentation](#-database-documentation)
+5. [Current Features](#-current-features)
+6. [Project Structure](#-project-structure)
+7. [Setup & Installation](#-setup--installation)
+8. [Development Workflow](#-development-workflow)
+9. [Testing](#-testing)
+10. [Deployment](#-deployment)
+11. [Future Improvements](#-future-improvements)
 
 ---
 
-## 🧠 System Architecture
+## 📌 Project Overview
+
+**ACADEXA** is an intelligent academic advising desktop application designed to help universities move beyond simple data storage. It combines traditional academic management (students, courses, transcripts) with an **Expert System** engine that mimics human expert reasoning.
+
+> 🎯 **Core Philosophy:** Instead of just answering "What is the student's GPA?", ACADEXA answers **"Why is the student at risk?"** and **"What should they do next?"**
+
+ACADEXA is a **multi-process monorepo product** with three decoupled runtimes:
+
+1.  **Electron Desktop Shell** — OS-level concerns (windows, file system, printing, notifications)
+2.  **React Renderer (Acadexa Web UI)** — Application UI built with Vite, MUI (RTL), Zustand, React Router, React Hook Form + Zod
+3.  **FastAPI Backend** — Database access, Expert System, AI layer, data ingestion, reporting
+
+### ✨ Key Differentiators
+
+| Feature                 | Traditional SIS | ACADEXA                |
+| :---------------------- | :-------------- | :--------------------- |
+| Data Storage            | ✅ Yes          | ✅ Yes                 |
+| GPA Calculation         | ✅ Yes          | ✅ Yes                 |
+| Prerequisite Checking   | ❌ Manual       | ✅ **Automatic**       |
+| Academic Risk Detection | ❌ No           | ✅ **Expert System**   |
+| Graduation Eligibility  | ❌ Manual Audit | ✅ **Instant Check**   |
+| Explainable AI          | ❌ No           | ✅ **Evidence-Based**  |
+| Offline Desktop         | ❌ No           | ✅ **Electron Native** |
+| Arabic RTL Support      | ❌ Rare         | ✅ **Full Support**    |
+
+---
+
+## 🛠️ Current Tech Stack
+
+| Layer              | Technology               | Purpose                                            |
+| :----------------- | :----------------------- | :------------------------------------------------- |
+| Desktop Framework  | Electron                 | Cross-platform desktop app (Windows, macOS, Linux) |
+| Frontend Framework | React 18 + Vite          | Fast UI development with HMR                       |
+| UI Library         | Material-UI (MUI) v5     | Professional components with RTL support           |
+| State Management   | Zustand                  | Lightweight, scalable state                        |
+| Type Safety        | TypeScript + Zod         | Full-stack type safety                             |
+| Backend Framework  | FastAPI (Python 3.11+)   | High-performance async REST API                    |
+| Database ORM       | SQLAlchemy 2.0           | Database operations                                |
+| Database           | PostgreSQL + Supabase    | Primary relational data store + Auth               |
+| Authentication     | Supabase Auth / JWT      | Role-based access control                          |
+| Expert System      | Custom Rule Engine       | Forward-chaining inference                         |
+| AI Integration     | OpenAI/Anthropic API     | Natural language explanations (read-only)          |
+| File Processing    | Pandas + OpenPyXL        | Excel transcript parsing                           |
+| Package Manager    | pnpm workspaces + Poetry | Monorepo management                                |
+
+---
+
+## 🏗️ System Architecture
 
 The system is built on a **multi-process monorepo** with three decoupled runtimes:
 
@@ -67,45 +96,24 @@ graph TD
    H -.->|Read Only| E
 ```
 
-### 🧩 Component Breakdown
+### Component Breakdown
 
-| Layer | Technology | Responsibility |
-| :--- | :--- | :--- |
-| Desktop Shell | Electron | Native OS features (filesystem, printing, notifications, auto-update) |
-| UI Renderer | React + Vite + MUI + RTL | All business UI, state management (Zustand), routing (React Router) |
-| API Gateway | FastAPI (Python) | Request validation, routing, RBAC enforcement |
-| Expert System | Custom Forward-Chaining Engine | Rule evaluation, inference, recommendation generation |
-| AI Assistant | LLM (OpenAI/Anthropic) | Explanation rephrasing, report summaries (read-only) |
-| Data Layer | SQLAlchemy + Supabase/Postgres | ORM, migrations, data persistence |
+| Layer         | Technology                     | Responsibility                                           |
+| :------------ | :----------------------------- | :------------------------------------------------------- |
+| Desktop Shell | Electron                       | Native OS features (filesystem, printing, notifications) |
+| UI Renderer   | React + Vite + MUI + RTL       | All business UI, state management (Zustand), routing     |
+| API Gateway   | FastAPI (Python)               | Request validation, routing, RBAC enforcement            |
+| Expert System | Custom Forward-Chaining Engine | Rule evaluation, inference, issue generation             |
+| AI Assistant  | LLM (OpenAI/Anthropic)         | Explanation rephrasing, report summaries (read-only)     |
+| Data Layer    | SQLAlchemy + Supabase/Postgres | ORM, migrations, data persistence                        |
 
 ### Why a Monorepo?
 
-Electron, React, and shared TypeScript types must evolve together. A monorepo with workspaces (npm/pnpm workspaces + Turborepo or Nx) lets `shared-types` be imported by both `desktop` and `web` without publishing packages, while the Python `api` lives alongside as an independent workspace with its own dependency tree (Poetry/uv).
+Electron, React, and shared TypeScript types must evolve together. A monorepo with workspaces (pnpm workspaces + Turborepo) lets `shared-types` be imported by both `desktop` and `web` without publishing packages, while the Python `api` lives alongside as an independent workspace with its own dependency tree (Poetry).
 
 ---
 
-## 🛠️ Full Tech Stack
-
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| Desktop Framework | Electron | Cross-platform desktop app (Windows, macOS, Linux) |
-| Frontend Framework | React 18 + Vite | Fast UI development with HMR |
-| UI Library | Material-UI (MUI) v5 | Professional components with RTL support |
-| State Management | Zustand | Lightweight, scalable state |
-| Type Safety | TypeScript + Zod | Full-stack type safety |
-| Backend Framework | FastAPI (Python 3.11+) | High-performance async REST API |
-| Database ORM | SQLAlchemy 2.0 (Async) | Async database operations |
-| Database | PostgreSQL (Supabase) | Primary relational data store |
-| Authentication | Supabase Auth / JWT | Role-based access control |
-| Expert System | Custom Rule Engine | Forward-chaining inference with JSONB rules |
-| AI Integration | OpenAI/Anthropic API | Natural language explanations (read-only) |
-| File Processing | Pandas + OpenPyXL | Excel transcript parsing |
-| Task Queue | BackgroundTasks / Celery | Long-running imports |
-| Package Manager | npm workspaces + Poetry | Monorepo management |
-
----
-
-## 📁 Project Structure (Monorepo)
+## 📁 Project Structure
 
 ```text
 acadexa/
@@ -117,555 +125,370 @@ acadexa/
 │   ├── shared-types/            # Shared TS contracts (DTOs, enums)
 │   ├── shared-config/           # ESLint/Prettier/TS configs
 │   └── ui-kit/                  # Shared MUI components/theme
-├── docs/                         # ADRs, architecture diagrams, API docs
-├── scripts/                       # Cross-cutting dev/build/release scripts
-├── .github/workflows/             # CI/CD pipelines
-├── docker-compose.yml              # Local Supabase/Postgres + API
-├── turbo.json / nx.json            # Monorepo task runner config
-└── package.json                    # Workspace root
+├── docs/                        # ADRs, architecture diagrams, API docs
+│   └── database/                # Database documentation (10+ files)
+├── scripts/                     # Cross-cutting dev/build/release scripts
+├── .github/workflows/           # CI/CD pipelines
+├── docker-compose.yml           # Local Supabase/Postgres + API
+├── turbo.json                   # Monorepo task runner config
+└── package.json                 # Workspace root
 ```
 
----
-
-## 💻 apps/desktop — Electron Architecture
+### 💻 Desktop Architecture (`apps/desktop/`)
 
 ```text
 apps/desktop/
 ├── src/
 │   ├── main/
 │   │   ├── index.ts                   # App entry, window lifecycle
-│   │   ├── windows/
-│   │   │   ├── main-window.ts         # BrowserWindow factory + config
-│   │   │   └── window-manager.ts      # Tracks open windows, focus mgmt
+│   │   ├── windows/                   # BrowserWindow factory + manager
 │   │   ├── ipc/
-│   │   │   ├── handlers/
-│   │   │   │   ├── file-handler.ts        # Open/save dialogs, file reads
-│   │   │   │   ├── print-handler.ts       # Print/print-to-PDF
-│   │   │   │   ├── notification-handler.ts
-│   │   │   │   ├── update-handler.ts      # autoUpdater events
-│   │   │   │   └── storage-handler.ts     # electron-store local cache
-│   │   │   └── ipc-registry.ts        # Central registration of all ipcMain.handle()
-│   │   ├── services/
-│   │   │   ├── api-config.service.ts  # Resolves backend base URL (local/remote)
-│   │   │   ├── update.service.ts      # electron-updater wiring
-│   │   │   └── tray.service.ts        # System tray menu
-│   │   ├── menu/
-│   │   │   └── app-menu.ts            # Native menu (with i18n labels)
-│   │   └── security/
-│   │       └── csp.ts                 # Content-Security-Policy headers
+│   │   │   ├── handlers/              # file-handler, print-handler, notification-handler
+│   │   │   └── ipc-registry.ts        # Central IPC registration
+│   │   ├── services/                  # api-config, update, tray
+│   │   ├── menu/                      # Native menu
+│   │   └── security/                  # CSP headers
 │   ├── preload/
 │   │   ├── index.ts                   # contextBridge exposeInMainWorld
-│   │   └── api/
-│   │       ├── fileApi.ts             # window.acadexa.files.*
-│   │       ├── printApi.ts            # window.acadexa.print.*
-│   │       ├── notificationApi.ts     # window.acadexa.notify.*
-│   │       └── updateApi.ts           # window.acadexa.updates.*
+│   │   └── api/                       # fileApi, printApi, notificationApi, updateApi
 │   └── shared/
-│       ├── ipc-channels.ts            # Enum of all IPC channel names (single source of truth)
-│       └── types.ts                   # Shared main/preload/renderer types
-├── resources/                          # Icons, tray icons, installer assets
-├── build/
-│   ├── entitlements.mac.plist
-│   └── electron-builder.yml
-├── electron.vite.config.ts
-└── package.json
+│       ├── ipc-channels.ts            # Enum of all IPC channel names
+│       └── types.ts                   # Shared types
+├── resources/                         # Icons, tray icons
+├── build/                             # electron-builder.yml, entitlements
+└── electron.vite.config.ts
 ```
 
-### Responsibilities & Communication (Data Processing)
-
-- **`main/index.ts`** — App bootstrap: creates the main `BrowserWindow`, loads the Vite dev server URL (dev) or `apps/web/dist/index.html` (prod), registers IPC handlers, sets up auto-updater and tray.
-- **`main/ipc/handlers/*`** — Each handler wraps a native OS capability (`dialog`, `fs`, `Notification`, `webContents.print`) behind a single `ipcMain.handle(channel, ...)`. These are the only place Node APIs are touched.
-- **`preload/api/*`** — Uses `contextBridge` to expose a strictly-typed `window.acadexa.*` object to the renderer. The renderer never uses `require` or Node APIs directly — only this bridge. This is the security boundary (no `nodeIntegration`).
-- **`shared/ipc-channels.ts`** — A single enum/const object imported by both main and preload, so channel name typos become compile errors.
-
-**Why this exists:** Electron is the only layer allowed to touch the filesystem, native dialogs, printers, and OS notifications. Everything else (business logic, data, UI) lives in `web` and `api`, making the desktop shell swappable (e.g., could later become a Tauri shell with minimal changes to `web`/`api`).
-
-### Communication Flow
+### ⚛️ Frontend Architecture (`apps/web/src/`)
 
 ```text
-React Renderer (apps/web)
-  ⇅ window.acadexa.* (contextBridge, typed)
-Preload Script
-  ⇅ ipcRenderer.invoke / ipcMain.handle
-Main Process (Electron)
-  ⇅ Node fs / dialog / Notification / print / autoUpdater
-Operating System
-```
-
-All business/academic data flows over HTTP from `apps/web` directly to `apps/api` (FastAPI) — Electron IPC is **not** used as a data tunnel for academic data.
-
----
-
-## ⚛️ apps/web — Frontend (React Renderer) Architecture
-
-```text
-apps/web/
-├── src/
-│   ├── app/
-│   │   ├── App.tsx                    # Root component, providers
-│   │   ├── AppRouter.tsx              # React Router route tree
-│   │   ├── providers/
-│   │   │   ├── ThemeProvider.tsx      # MUI theme + RTL/LTR switch
-│   │   │   ├── AuthProvider.tsx       # Session context
-│   │   │   └── QueryProvider.tsx      # React Query / API client provider
-│   │   └── layouts/
-│   │       ├── DashboardLayout.tsx
-│   │       ├── AuthLayout.tsx
-│   │       └── PrintLayout.tsx        # Minimal layout for print views
-│   ├── features/
-│   │   ├── auth/
-│   │   │   ├── components/            # LoginForm, SessionExpiredDialog
-│   │   │   ├── hooks/                 # useLogin, useSession
-│   │   │   ├── store/                 # auth.store.ts (Zustand)
-│   │   │   ├── api/                   # auth.api.ts
-│   │   │   └── schemas/               # login.schema.ts (Zod)
-│   │   ├── students/
-│   │   │   ├── components/            # StudentTable, StudentProfile, GradeHistory
-│   │   │   ├── hooks/                 # useStudents, useStudentDetails
-│   │   │   ├── store/
-│   │   │   ├── api/
-│   │   │   └── schemas/
-│   │   ├── academic-structure/        # Departments, Programs, Study Plans, Levels, Semesters
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── store/
-│   │   │   └── api/
-│   │   ├── courses/                   # Courses, Prerequisites, Academic Load Rules (UI)
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── store/
-│   │   │   └── api/
-│   │   ├── expert-system/             # Rule Builder UI, Rule List, Test/Simulate Rule
-│   │   │   ├── components/
-│   │   │   │   ├── RuleEditor.tsx     # Condition/Action builder
-│   │   │   │   ├── RuleList.tsx
-│   │   │   │   └── RuleSimulator.tsx
-│   │   │   ├── hooks/
-│   │   │   ├── store/
-│   │   │   └── api/
-│   │   ├── recommendations/           # Displays explainable recommendations
-│   │   │   ├── components/
-│   │   │   │   ├── RecommendationCard.tsx  # shows reason, evidence, priority
-│   │   │   │   └── ExplanationPanel.tsx
-│   │   │   ├── hooks/
-│   │   │   └── api/
-│   │   ├── data-import/               # Excel upload & mapping UI
-│   │   │   ├── components/
-│   │   │   │   ├── FileDropzone.tsx
-│   │   │   │   ├── ImportPreviewTable.tsx
-│   │   │   │   └── ImportStatusTracker.tsx
-│   │   │   ├── hooks/
-│   │   │   └── api/
-│   │   ├── reports/                   # Report generation & PDF export UI
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── api/
-│   │   ├── ai-assistant/              # Chat assistant UI
-│   │   │   ├── components/
-│   │   │   │   ├── ChatWindow.tsx
-│   │   │   │   └── ChatBubble.tsx
-│   │   │   ├── hooks/
-│   │   │   ├── store/
-│   │   │   └── api/
-│   │   ├── notifications/             # In-app notification center
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store/
-│   │   └── admin/                     # User management, RBAC config, system settings
-│   │       ├── components/
-│   │       ├── hooks/
-│   │       └── api/
-│   ├── shared/
-│   │   ├── components/                # DataGrid wrappers, ConfirmDialog, EmptyState
-│   │   ├── hooks/                      # useDebounce, usePagination, useElectronBridge
-│   │   ├── lib/
-│   │   │   ├── apiClient.ts           # Axios/fetch instance, interceptors (auth token, errors)
-│   │   │   └── electronBridge.ts      # Wraps window.acadexa.* with fallbacks for web-only mode
-│   │   ├── guards/
-│   │   │   └── RoleGuard.tsx          # RBAC-aware route/component guard
-│   │   └── utils/
-│   ├── store/
-│   │   └── root.store.ts              # Combines/exports feature Zustand stores
-│   ├── theme/
-│   │   ├── theme.ts                   # MUI theme tokens (colors, typography)
-│   │   ├── rtl.ts                     # stylis-plugin-rtl setup
-│   │   └── palette.ts
-│   ├── i18n/
-│   │   ├── ar.json
-│   │   ├── en.json
-│   │   └── i18n.ts                    # i18next config (default: Arabic/RTL)
-│   ├── routes/
-│   │   └── routes.config.ts           # Route definitions mapped to roles
-│   └── main.tsx
-├── public/
-├── index.html
-└── vite.config.ts
-```
-
-### Frontend Responsibilities & Communication
-
-- **`app/providers`** — Global cross-cutting concerns: theme/RTL switching (critical for Arabic UI), authenticated session context (reads/writes via `features/auth/store`), and the API client provider (base URL resolved via Electron preload in desktop mode, `.env` in web-dev mode).
-- **`features/*`** — Each feature is a vertical slice: `components` (presentation), `hooks` (data-fetching/business logic via React Query wrapping `api/`), `store` (Zustand slices for local/UI state), `api` (typed REST calls to FastAPI using `shared-types` DTOs), `schemas` (Zod validation matching backend Pydantic schemas).
-- **`features/expert-system`** and **`features/recommendations`** are deliberately separate features: the former is the admin authoring tool for rules (Admin/Developer roles), the latter is the consumption view of generated recommendations (Advisor role). Both call different backend routers but share the `shared-types` rule/recommendation DTOs.
-- **`shared/guards/RoleGuard.tsx`** — Wraps routes/components, reading the role from `features/auth/store`, enforcing RBAC purely at the presentation layer (the backend enforces it again — defense in depth).
-- **`shared/lib/electronBridge.ts`** — Abstraction so feature code calls `electronBridge.files.openExcel()` rather than `window.acadexa.files.openExcel()` directly; this allows the same `web` codebase to run in a plain browser (e.g., for web-only deployment) by swapping the bridge implementation.
-
-**Communication:** `features/*/api` → `shared/lib/apiClient` (Axios instance with base URL + auth header interceptor) → FastAPI `apps/api`. File picking/printing/notifications go through `electronBridge` → Electron preload → main process.
-
----
-
-## ⚙️ apps/api — Backend (FastAPI) Architecture
-
-```text
-apps/api/
+apps/web/src/
+├── main.tsx
 ├── app/
-│   ├── main.py                        # FastAPI app factory, middleware, router registration
-│   ├── core/
-│   │   ├── config.py                  # Settings (Pydantic Settings, .env driven)
-│   │   ├── security.py                # Password/session hashing, JWT/session tokens
-│   │   ├── dependencies.py            # get_current_user, get_db, RBAC dependencies
-│   │   ├── exceptions.py              # Custom exception classes + handlers
-│   │   └── logging.py
-│   ├── db/
-│   │   ├── base.py                    # Declarative base, naming conventions
-│   │   ├── session.py                 # SQLAlchemy session/engine (Supabase Postgres)
-│   │   └── seed/
-│   │       └── seed_data.py           # Initial roles, sample rules, demo users
-│   ├── models/                        # SQLAlchemy ORM models (one module per domain)
-│   │   ├── user.py
-│   │   ├── student.py
-│   │   ├── academic_structure.py      # Department, Program, StudyPlan, Level, Semester
-│   │   ├── course.py                  # Course, Prerequisite
-│   │   ├── grade.py
-│   │   ├── rule.py                    # Rule, RuleCondition, RuleAction
-│   │   ├── recommendation.py
-│   │   └── notification.py
-│   ├── schemas/                       # Pydantic request/response DTOs (mirrors shared-types)
-│   │   ├── auth.py
-│   │   ├── student.py
-│   │   ├── academic_structure.py
-│   │   ├── course.py
-│   │   ├── rule.py
-│   │   ├── recommendation.py
-│   │   └── report.py
-│   ├── api/
-│   │   └── v1/
-│   │       ├── router.py              # Aggregates all v1 routers
-│   │       └── endpoints/
-│   │           ├── auth.py
-│   │           ├── students.py
-│   │           ├── academic_structure.py
-│   │           ├── courses.py
-│   │           ├── grades.py
-│   │           ├── rules.py           # CRUD for Expert System rules
-│   │           ├── recommendations.py # Trigger evaluation / fetch recommendations
-│   │           ├── reports.py
-│   │           ├── data_import.py     # Excel upload endpoints
-│   │           ├── ai_assistant.py
-│   │           ├── notifications.py
-│   │           └── admin.py           # User/role management
-│   ├── services/                      # Business logic layer (orchestrates repositories)
-│   │   ├── auth_service.py
-│   │   ├── student_service.py
-│   │   ├── gpa_service.py             # GPA calculation logic
-│   │   ├── graduation_service.py      # Graduation requirement checks
-│   │   ├── course_service.py
-│   │   ├── report_service.py
-│   │   └── notification_service.py
-│   ├── repositories/                  # Data-access layer (SQLAlchemy queries, isolated from services)
-│   │   ├── student_repository.py
-│   │   ├── course_repository.py
-│   │   ├── rule_repository.py
-│   │   └── recommendation_repository.py
-│   ├── expert_system/                 # ⭐ Core Expert System engine (see section below)
-│   ├── ai/                            # 🤖 AI assistant layer (see section below)
-│   ├── data_processing/               # ⭐ Excel ingestion (see section below)
-│   └── tasks/
-│       └── background_jobs.py         # Long-running jobs (bulk import, batch recommendation runs)
-├── alembic/
-│   ├── versions/
-│   └── env.py
-├── tests/                              # See Testing Structure section
-├── pyproject.toml
-└── .env.example
+│   ├── App.tsx
+│   ├── AppRouter.tsx
+│   ├── layouts/                       # AuthLayout, DashboardLayout, PrintLayout
+│   └── providers/                     # AuthProvider, QueryProvider, ThemeProvider
+├── pages/                             # Thin route entry points (16 pages)
+│   ├── auth/LoginPage.tsx
+│   ├── dashboard/DashboardPage.tsx
+│   ├── students/StudentsListPage.tsx
+│   ├── students/StudentProfilePage.tsx
+│   ├── import/ImportPage.tsx
+│   ├── academic-structure/            # Departments, Curricula, Courses, Rules
+│   ├── expert-system/                 # InferenceRules, GradeScale
+│   ├── reports/                       # StudentReports, DepartmentAnalytics
+│   ├── notifications/NotificationsPage.tsx
+│   └── settings/                      # UsersRoles, AdvisorAssignments, SystemSettings
+├── features/                          # 17 vertical slice features
+│   ├── auth/                          # Login, session management
+│   ├── dashboard/                     # KPI cards, charts, risk panel
+│   ├── students/                      # Student list, profile with 8 tabs
+│   ├── data-import/                   # Excel upload wizard, history
+│   ├── departments/                   # Department CRUD
+│   ├── curricula/                     # Curriculum management with tabs
+│   ├── courses/                       # Course search, prerequisites
+│   ├── academic-load-rules/           # Academic rules table
+│   ├── expert-system/                 # Rule analytics (not builder)
+│   ├── grade-scale/                   # Grade scale management
+│   ├── reports/                       # Student & department reports
+│   ├── notifications/                 # Notification center
+│   ├── advisor-assignments/           # Advisor-student assignments
+│   ├── admin/                         # User management
+│   ├── settings/                      # System settings
+│   ├── ai-assistant/                  # Chat assistant
+│   └── recommendations/               # Explainable recommendations
+├── shared/
+│   ├── components/                    # DataTable, ConfirmDialog, StatusBadge, etc.
+│   ├── guards/RoleGuard.tsx
+│   ├── hooks/                         # useDebounce, usePagination, useTableState
+│   ├── lib/                           # apiClient, electronBridge
+│   └── utils/                         # formatters, academicStatus, gpa, date
+├── routes/routes.config.ts
+├── store/root.store.ts
+├── theme/                             # theme.ts, rtl.ts, palette.ts
+└── i18n/                              # ar.json, en.json
 ```
 
-### API Layer: Responsibilities & Communication
-
-- **`core/`** — Cross-cutting infrastructure: configuration (Supabase connection string, JWT secret, AI provider keys), security primitives, and FastAPI dependency injection helpers (`get_current_user` resolves the session and role; `require_role("admin")` is a reusable dependency for RBAC).
-- **`db/`** — SQLAlchemy engine/session setup pointed at Supabase Postgres, plus Alembic migrations for schema evolution and a seed script for demo/test data (roles, sample rules, sample students).
-- **`models/`** — Pure ORM definitions, one file per domain area, mapped 1:1 to the ER design below.
-- **`schemas/`** — Pydantic models define the API contract. These are mirrored (manually or via codegen) into `packages/shared-types` so the React frontend has compile-time accurate DTOs.
-- **`api/v1/endpoints/*`** — Thin controllers: validate input via schemas, call a `service`, return a schema. No business logic lives here.
-- **`services/*`** — Where business rules that are *not* part of the Expert System live (e.g., GPA calculation formulas, graduation requirement aggregation, report assembly). These services call into `expert_system/` when a decision needs rule-based reasoning, but they own deterministic calculations (GPA math, semester totals).
-- **`repositories/*`** — All raw SQLAlchemy queries are isolated here so services remain testable with mocked repositories.
-
-**Communication:** `endpoints` → `services` → (`repositories` for data, `expert_system` for reasoning, `ai` for natural-language tasks, `data_processing` for Excel ingestion) → `models`/`db`.
-
----
-
-## 🧠 Expert System Architecture (`apps/api/app/expert_system/`)
-
-This is the heart of Acadexa. It must be a genuine rule-based inference engine, not embedded conditionals.
+### ⚙️ Backend Architecture (`apps/api/app/`)
 
 ```text
-expert_system/
-├── __init__.py
-├── engine.py                      # InferenceEngine — orchestrates the full evaluation cycle
-├── knowledge_base/
-│   ├── loader.py                  # Loads active Rule rows from DB → in-memory KB
-│   ├── rule_models.py             # Internal dataclasses: Rule, Condition, Action
-│   └── rule_validator.py          # Validates rule JSON structure on create/update
-├── facts/
-│   ├── fact_builder.py            # Builds a "StudentFactSheet" from DB (GPA, grades, levels, courses taken)
-│   └── fact_schema.py             # Defines the canonical fact dictionary shape
-├── operators/
-│   └── operator_registry.py       # Registry of supported operators: ==, !=, >, <, >=, <=, in, between, contains
-├── evaluation/
-│   ├── condition_evaluator.py     # Evaluates a single Condition against Facts
-│   ├── rule_matcher.py            # Determines which rules "fire" for a given fact set
-│   └── conflict_resolver.py       # Resolves priority/conflicts when multiple rules fire
-├── actions/
-│   └── action_executor.py         # Executes the Action of a fired rule (creates Recommendation, triggers Notification)
-├── explanation/
-│   └── explanation_builder.py     # Builds the structured explanation object (rule id, reason, evidence, etc.)
-├── categories/
-│   ├── gpa_rules.py                # Category-specific helper logic (registered, not hardcoded business outcomes)
-│   ├── warning_rules.py
-│   ├── graduation_rules.py
-│   ├── prerequisite_rules.py
-│   ├── load_rules.py
-│   └── registration_rules.py
-└── runner.py                       # Public entrypoint: run_evaluation(student_id) -> List[Recommendation]
+apps/api/app/
+├── main.py                            # FastAPI app factory
+├── core/
+│   ├── config.py                      # Pydantic Settings
+│   ├── security.py                    # JWT/session tokens
+│   ├── dependencies.py                # get_current_user, RBAC dependencies
+│   └── exceptions.py                  # Custom exception handlers
+├── db/
+│   ├── base.py                        # Declarative base
+│   ├── session.py                     # SQLAlchemy session
+│   └── seed/seed_data.py              # Initial roles, sample rules
+├── models/                            # SQLAlchemy ORM models (12 files)
+│   ├── user.py, student.py, course.py, grade.py
+│   ├── rule.py, recommendation.py, notification.py
+│   └── academic_structure.py
+├── schemas/                           # Pydantic DTOs (8 files)
+├── api/v1/
+│   ├── router.py
+│   └── endpoints/                     # 13 endpoint modules
+├── services/                          # Business logic layer (8 services)
+├── repositories/                      # Data access layer (4 repositories)
+├── expert_system/                     # ⭐ Core Expert System engine
+│   ├── engine.py, runner.py
+│   ├── knowledge_base/                # loader, rule_models, validator
+│   ├── facts/                         # fact_builder, fact_schema
+│   ├── operators/                     # operator_registry
+│   ├── evaluation/                    # condition_evaluator, rule_matcher, conflict_resolver
+│   ├── actions/                       # action_executor
+│   ├── explanation/                   # explanation_builder
+│   └── categories/                    # gpa_rules, warning_rules, graduation_rules, etc.
+├── ai/                                # AI assistant layer (read-only)
+│   ├── client.py
+│   ├── prompts/                       # explanation, summary, chat
+│   ├── services/                      # explanation_service, summary_service, chat_service
+│   ├── context/context_builder.py
+│   └── guardrails/scope_guard.py
+├── data_processing/                   # Excel ingestion pipeline
+│   ├── parsers/excel_parser.py
+│   ├── mappers/                       # student, course, grade mappers
+│   ├── validators/import_validator.py
+│   ├── importer/import_service.py
+│   └── jobs/import_job_tracker.py
+└── tasks/background_jobs.py
 ```
-
-### How It Works (Inference Cycle)
-
-1. **`facts/fact_builder.py`** queries the database via repositories and assembles a `StudentFactSheet`: a normalized dict/dataclass containing GPA, completed credit hours, current semester, grades per course, program requirements, attempted prerequisites, current academic load, etc. This is the engine's "working memory."
-2. **`knowledge_base/loader.py`** loads all `Rule` rows where `is_active = true`, ordered by `priority`, and converts each DB row's JSON `conditions`/`actions` into internal `Rule`/`Condition`/`Action` dataclasses (via `rule_models.py`), validated by `rule_validator.py`.
-3. **`evaluation/rule_matcher.py`** iterates rules; for each, `evaluation/condition_evaluator.py` evaluates every condition against the `StudentFactSheet` using the operator implementations in `operators/operator_registry.py` (a dict mapping operator strings to lambda/functions — extensible without touching the engine core).
-4. Rules whose conditions all evaluate true are "fired." `evaluation/conflict_resolver.py` orders fired rules by priority and removes mutually-exclusive duplicates (e.g., don't show both "good standing" and "academic warning" for the same GPA threshold band if rules overlap).
-5. **`actions/action_executor.py`** executes each fired rule's action (e.g., `CREATE_RECOMMENDATION`, `TRIGGER_NOTIFICATION`, `FLAG_PREREQUISITE_VIOLATION`), persisting `Recommendation` rows via `recommendation_repository`.
-6. **`explanation/explanation_builder.py`** attaches to every generated recommendation: `rule_id`, `rule_name`, `reason` (human template filled with actual student values), `evidence` (the exact fact values that satisfied each condition), `explanation` (full narrative), and `priority`.
-7. **`runner.py`** exposes `run_evaluation(student_id)`, called from `services/` (e.g., whenever new grades are imported, or on-demand from the Advisor UI via `endpoints/recommendations.py`).
-
-### Why This Design
-
-- The engine is **data-driven**: adding a new rule means inserting a row in the `rules` table (via Admin UI → `endpoints/rules.py`), never touching Python code — satisfying "rules must not be hardcoded."
-- The `categories/*` modules exist only to hold category-specific helper computations that a condition might reference (e.g., "credits_remaining_to_graduate" — a derived fact, not a hardcoded decision), keeping the core `engine.py` generic across all six rule categories.
-- `operator_registry.py` makes the condition language extensible (add a new operator without touching `condition_evaluator.py`).
-
-**Communication:** `expert_system` is called only by `services/` (never directly by `api/endpoints`), and never calls `ai/` — satisfying "AI must not replace the rule engine." `ai/` may read the output of `expert_system` (recommendations + explanations) to rephrase them.
 
 ---
 
-## 🗃️ Knowledge Base — Database Design
+## 🗄️ Database Documentation
 
-Core tables (Supabase Postgres, managed via SQLAlchemy models + Alembic):
+### Database Design Philosophy
+
+The database follows a **curriculum-based design** where each student is associated with a specific curriculum (department + regulation year). The schema is organized around these core principles:
+
+1.  **Separation of staging and production data** — `raw_students`/`raw_courses` for Excel import staging
+2.  **Auditability** — Import jobs track provenance of every record
+3.  **Explainability** — Analysis issues store rule_code, severity, and recommendations
+4.  **RLS by default** — Row Level Security enforced on all tables
+
+### Main Tables and Purposes
+
+#### Core Academic Structure
+
+| Table                     | Purpose                                                            |
+| :------------------------ | :----------------------------------------------------------------- |
+| `departments`             | Academic departments (e.g., Computer Science, Information Systems) |
+| `curricula`               | Program versions per department + regulation year                  |
+| `curriculum_courses`      | Courses belonging to a curriculum (with level, term, category)     |
+| `course_prerequisites`    | Prerequisite relationships between courses                         |
+| `elective_groups`         | Elective groupings with required hours/min courses                 |
+| `elective_group_courses`  | Many-to-many mapping of electives to groups                        |
+| `graduation_requirements` | Graduation rules per curriculum                                    |
+| `academic_rules`          | Probation GPA, min/max hours per term, level progression           |
+
+#### Student Records
+
+| Table                 | Purpose                                        |
+| :-------------------- | :--------------------------------------------- |
+| `students`            | Core student information + cumulative stats    |
+| `student_semesters`   | Per-semester academic performance              |
+| `student_courses`     | Individual course attempts, grades, and status |
+| `advisor_assignments` | Advisor-to-student assignments                 |
+| `advisor_notes`       | Notes written by advisors about students       |
+
+#### Import Pipeline
+
+| Table            | Purpose                                              |
+| :--------------- | :--------------------------------------------------- |
+| `import_jobs`    | Tracks Excel import jobs (status, counts, error_log) |
+| `imported_files` | File metadata for each import                        |
+| `raw_students`   | Staging table for parsed student data                |
+| `raw_courses`    | Staging table for parsed course data                 |
+
+#### Expert System & Analytics
+
+| Table                   | Purpose                                                          |
+| :---------------------- | :--------------------------------------------------------------- |
+| `academic_analyses`     | Latest expert system run per student (status, risk, eligibility) |
+| `analysis_issues`       | Individual rule violations with explanations and recommendations |
+| `department_statistics` | Periodic snapshots for trend reporting                           |
+| `reports`               | Generated report metadata (JSONB data)                           |
+
+#### Authentication & Authorization
+
+| Table         | Purpose                                                |
+| :------------ | :----------------------------------------------------- |
+| `profiles`    | Extends Supabase `auth.users` with app-specific fields |
+| `roles`       | Role definitions (`admin`, `academic_advisor`)         |
+| `user_roles`  | Many-to-many user-role assignments                     |
+| `grade_scale` | Global grading scale (points, passing, GPA impact)     |
+
+### Key Relationships
 
 ```text
-users                  (id, name, email, password_hash, role, is_active)
-students               (id, student_number, name, department_id, program_id, level_id, status)
-departments            (id, name, code)
-programs               (id, name, department_id, total_required_credits)
-study_plans            (id, program_id, version, effective_year)
-study_plan_courses     (id, study_plan_id, course_id, level_id, semester_no, is_mandatory)
-academic_levels        (id, name, order)
-semesters              (id, name, year, term, is_active)
-courses                (id, code, name, credit_hours, department_id)
-course_prerequisites   (id, course_id, prerequisite_course_id, min_grade)
-grades                 (id, student_id, course_id, semester_id, grade, grade_points, attempt_no)
+departments (1) ──< (N) curricula
+curricula (1) ──< (N) curriculum_courses
+curriculum_courses (1) ──< (N) course_prerequisites (as course_id or required_course_id)
 
--- Expert System Knowledge Base --
-rules                  (id, name, category, description, priority,
-                        conditions JSONB, operators JSONB, "values" JSONB,
-                        actions JSONB, explanation_template TEXT,
-                        is_active BOOLEAN, version INT,
-                        created_by, updated_by, created_at, updated_at)
+curricula (1) ──< (N) elective_groups
+elective_groups (1) ──< (N) elective_group_courses
 
-recommendations        (id, student_id, rule_id, rule_name_snapshot,
-                        reason TEXT, evidence JSONB, explanation TEXT,
-                        priority INT, status, created_at)
+curricula (1) ── (1) graduation_requirements
+curricula (1) ── (1) academic_rules
 
--- Supporting modules --
-notifications          (id, user_id, title, message, type, is_read, created_at)
-import_jobs            (id, file_name, uploaded_by, status, summary JSONB, created_at)
-reports                (id, type, student_id, generated_by, file_path, created_at)
-audit_logs             (id, user_id, action, entity, entity_id, details JSONB, created_at)
+departments (1) ──< (N) students
+curricula (1) ──< (N) students
+students (1) ──< (N) student_semesters
+student_semesters (1) ──< (N) student_courses
+
+students (1) ──< (N) academic_analyses
+academic_analyses (1) ──< (N) analysis_issues
+
+students (1) ──< (N) advisor_assignments (active)
+profiles (1) ──< (N) advisor_assignments (as advisor_id)
+
+import_jobs (1) ──< (N) imported_files
+import_jobs (1) ──< (N) raw_students
+raw_students (1) ──< (N) raw_courses
 ```
 
-### Design Notes
+### ERD Reference
 
-- **`rules.conditions` / `rules.actions` as JSONB**: each condition is `{ "field": "gpa", "operator": "<", "value": 2.0 }`; each action is `{ "type": "CREATE_RECOMMENDATION", "category": "academic_warning", "message_template": "..." }`. JSONB allows the Admin UI's `RuleEditor.tsx` to build arbitrarily complex condition trees (AND/OR groups can be modeled as nested JSON) without schema migrations per rule.
-- **`recommendations.evidence`** stores a snapshot of the exact fact values used (e.g., `{ "gpa": 1.8, "threshold": 2.0, "semester": "2025-Fall" }`) — this is what powers the "Why was this recommendation generated?" explanation, even if the student's data later changes.
-- **`rules.version`** + **`recommendations.rule_name_snapshot`** ensure historical recommendations remain explainable even after a rule is edited later.
-- **`study_plan_courses`** + **`course_prerequisites`** feed the `prerequisite_rules` and `load_rules` categories directly as facts.
-- **`audit_logs`** tracks who created/edited/activated rules — important for an "expert system" where trust in rule provenance matters.
+Complete ERD documentation is available in:
 
----
+- `docs/database/ERD.md` — Entity relationship diagrams
+- `docs/database/RELATIONSHIPS.md` — Detailed relationship documentation
+- `docs/database/TABLE_DOCUMENTATION.md` — Per-table field descriptions
 
-## 🤖 AI Module Structure (`apps/api/app/ai/`)
+### Important Constraints & Design Decisions
+
+#### Enums
+
+- `term_enum`: `'fall'`, `'spring'`, `'summer'`
+- `course_category_enum`: `'university_required'`, `'university_elective'`, `'college_required'`, `'college_elective'`, `'major_required'`, `'major_elective'`
+- `academic_status_enum`: `'good_standing'`, `'delayed'`, `'needs_support'`, `'probation'`
+- `risk_level_enum`: `'low'`, `'medium'`, `'high'`
+- `import_status_enum`: `'pending'`, `'processing'`, `'completed'`, `'failed'`
+- `issue_severity_enum`: `'info'`, `'warning'`, `'error'`
+
+#### Key Constraints
+
+- `students.student_code` is globally unique
+- `curricula` unique constraint on `(department_id, regulation_year)`
+- `academic_analyses` stores latest analysis per student (queried via `latest_academic_analyses` view)
+- `student_courses` tracks `is_latest_attempt` to identify the current grade for GPA calculation
+- `import_jobs.department_id` ensures one workbook = one department
+
+#### Row Level Security (RLS)
+
+- All tables have RLS enabled
+- Helper functions: `is_admin()`, `is_advisor()`, `is_staff()`
+- Staff (admin or advisor) can read most tables; only admin can write reference data
+- Users can see/update their own profile; admin can see/manage all profiles
+- Import jobs can be updated by uploader or admin
+
+### Views & Functions
+
+#### Views
+
+- `latest_academic_analyses` — Most recent analysis per student
+- `student_academic_summary` — Student + department + curriculum + latest analysis
+- `department_status_overview` — Per-department counts by academic status
+
+#### RPC Functions
+
+- `fn_student_completion_percentage(uuid)` → Graduation progress percentage
+- `fn_student_academic_summary(uuid)` → Complete academic summary as JSONB
+
+### Migration Files
+
+Migrations are organized in strict dependency order:
 
 ```text
-ai/
-├── __init__.py
-├── client.py                       # Thin wrapper around LLM provider SDK (model, API key from config)
-├── prompts/
-│   ├── explanation_prompt.py       # Template: rephrase ExplanationBuilder output in natural language
-│   ├── summary_prompt.py           # Template: summarize academic reports
-│   └── chat_prompt.py              # System prompt for chat assistant (scope limited)
-├── services/
-│   ├── explanation_service.py      # explain(recommendation) -> natural language text
-│   ├── summary_service.py          # summarize(report_data) -> narrative summary
-│   └── chat_service.py             # chat(messages, context) -> assistant reply
-├── context/
-│   └── context_builder.py          # Gathers allowed context (student facts + recommendations) for prompts
-└── guardrails/
-    └── scope_guard.py               # Ensures AI responses cannot assert new academic decisions
+001_extensions.sql           -- pgcrypto
+002_enums.sql                -- 6 enum types
+003_schema.sql               -- 25 tables
+004_constraints_indexes.sql  -- CHECK constraints, indexes
+005_triggers.sql             -- updated_at, auth.users -> profiles
+006_rls.sql                  -- RLS policies
+007_storage_notes.sql        -- Storage buckets
+008_seed.sql                 -- roles, grade_scale
+009_views.sql                -- 3 helper views
+010_functions.sql            -- 2 RPC functions
 ```
 
-### Responsibilities & Communication
+---
 
-- **`client.py`** isolates the LLM provider so it can be swapped (OpenAI, Anthropic, local model) via config only.
-- **`services/explanation_service.py`** is called after `expert_system.runner.run_evaluation()` — it takes the structured `Recommendation` (rule id, reason, evidence, explanation) and asks the LLM to phrase it conversationally in Arabic/English for the Advisor, never to decide whether a recommendation should exist.
-- **`services/summary_service.py`** is used by `services/report_service.py` to add a narrative paragraph to PDF reports, summarizing structured data the Expert System and GPA service already computed.
-- **`services/chat_service.py`** powers `endpoints/ai_assistant.py` and the `features/ai-assistant` chat UI. `context/context_builder.py` restricts what data the chat can "see" (the current student's facts/recommendations, not arbitrary DB access), and `guardrails/scope_guard.py` post-processes responses to strip/flag any attempt by the model to invent new rules or recommendations — reinforcing "AI is an assistant layer only."
+## 🚀 Current Features
 
-**Communication:** `ai/` is called only by `services/` (report_service, recommendation-related endpoints), reads from `expert_system` outputs and `repositories` (read-only), and never writes to `rules`, `recommendations`, or academic tables directly.
+### Implemented Features
+
+| Feature Area           | Specific Capability                                                                              | Status      |
+| :--------------------- | :----------------------------------------------------------------------------------------------- | :---------- |
+| 🔐 Authentication      | Login with Supabase Auth, session management                                                     | ✅ Complete |
+| 👥 User Management     | User list, role assignment (admin/advisor)                                                       | ✅ Complete |
+| 🏢 Departments         | CRUD operations for academic departments                                                         | ✅ Complete |
+| 📚 Curricula           | Curriculum management with regulation years                                                      | ✅ Complete |
+| 📖 Courses             | Course search, creation, prerequisite management                                                 | ✅ Complete |
+| 📋 Academic Load Rules | Min/max hours per term, level progression rules                                                  | ✅ Complete |
+| 🎓 Students            | Student list, filtering, search                                                                  | ✅ Complete |
+| 📊 Student Profile     | 8 tabs: Overview, Transcript, Academic Plan, Graduation, Analysis, Prerequisites, Notes, Reports | ✅ Complete |
+| 📈 Dashboard           | KPI cards, academic status chart, GPA distribution, at-risk panel, department table              | ✅ Complete |
+| 📤 Data Import         | Excel upload wizard, preview, validation, history tracking                                       | ✅ Complete |
+| 🧠 Expert System       | Rule-based analysis, academic status detection, risk assessment                                  | ✅ Complete |
+| 📋 Analysis Issues     | Per-rule issue tracking with severity and recommendations                                        | ✅ Complete |
+| 📝 Advisor Notes       | Note-taking per student                                                                          | ✅ Complete |
+| 👥 Advisor Assignments | Assign advisors to students                                                                      | ✅ Complete |
+| 🔔 Notifications       | In-app notification center                                                                       | ✅ Complete |
+| 📊 Reports             | Student reports (academic summary), department analytics                                         | ✅ Complete |
+| 🤖 AI Assistant        | Chat interface for natural language explanations                                                 | ✅ Complete |
+| 🎨 Grade Scale         | Global grade scale management (A-F + special symbols)                                            | ✅ Complete |
+| 🌐 RTL Support         | Full Arabic interface with RTL layout                                                            | ✅ Complete |
+| 🖨️ Print/Export        | PDF report generation, native printing (Electron)                                                | ✅ Complete |
+
+### Feature Details
+
+#### Student Profile Tabs
+
+1.  **Overview** — Academic summary card, expert system summary, graduation progress bar
+2.  **Transcript** — Semester-by-semester course list with grades
+3.  **Academic Plan** — Planned vs completed courses
+4.  **Graduation** — Graduation eligibility check
+5.  **Analysis** — Expert system issues with explanations
+6.  **Prerequisites** — Prerequisite status for upcoming courses
+7.  **Notes** — Advisor notes (add/edit/delete)
+8.  **Reports** — Generated report history
+
+#### Data Import Wizard
+
+Three-stage wizard:
+
+1.  **Upload** — File dropzone with validation
+2.  **Preview** — Review parsed data before commit
+3.  **Result** — Success/failure summary with error log
+
+#### Dashboard Components
+
+- KPI cards: Total students, at-risk students, avg GPA, graduation rate
+- Academic status donut chart
+- GPA distribution histogram
+- At-risk students panel (top 5-10 high-risk students)
+- Department status table
+- Recent imports widget
 
 ---
 
-## 📥 Data Processing Module (`apps/api/app/data_processing/`)
-
-```text
-data_processing/
-├── __init__.py
-├── parsers/
-│   └── excel_parser.py             # Wraps the existing Python Excel parser
-├── mappers/
-│   ├── student_mapper.py           # Maps raw parsed rows -> Student DTO
-│   ├── course_mapper.py
-│   └── grade_mapper.py
-├── validators/
-│   └── import_validator.py         # Schema/sanity checks before DB write (duplicate detection, missing fields)
-├── importer/
-│   └── import_service.py           # Orchestrates parse -> map -> validate -> persist, within a DB transaction
-└── jobs/
-    └── import_job_tracker.py       # Updates `import_jobs` status (pending/processing/done/failed) for UI polling
-```
-
-### Parser Responsibilities & Communication
-
-- **`parsers/excel_parser.py`** wraps the project's existing parser as a service-layer module — given a file path/stream, returns raw structured rows (student info, courses, grades).
-- **`mappers/*`** convert raw parser output into the same DTOs used by `schemas/` and ORM `models/`, isolating Excel-format quirks from the rest of the system.
-- **`validators/import_validator.py`** checks for duplicate student numbers, unknown course codes, invalid grade values, etc., producing a structured report of warnings/errors shown in `ImportPreviewTable.tsx` before commit.
-- **`importer/import_service.py`** is the single transactional entry point: called from `endpoints/data_import.py` after the Electron file dialog (via `electronBridge.files.openExcel()`) returns a file path, the file is uploaded/streamed to this endpoint, and on success it can trigger `expert_system.runner.run_evaluation()` for affected students (new grades may produce new recommendations).
-- **`jobs/import_job_tracker.py`** persists progress to `import_jobs`, polled by `ImportStatusTracker.tsx` for large files.
-
-**Communication:** `endpoints/data_import.py` → `data_processing.importer` → (`parsers`, `mappers`, `validators`) → `repositories` → DB, then optionally → `expert_system.runner` for re-evaluation, and → `notification_service` to notify advisors of new data.
-
----
-
-## 🧠 Expert System Deep Dive
-
-The core of ACADEXA is a dynamic rule-based expert system using forward chaining.
-
-### 🔧 Inference Engine Workflow
-
-```text
-1. Fact Builder
-   └── Queries DB → StudentFactSheet (GPA, credits, grades, prerequisites)
-
-2. Knowledge Base Loader
-   └── Loads active rules from 'rules' table (JSONB conditions/actions)
-
-3. Rule Matcher
-   └── Evaluates conditions using operator registry (==, >, <, in, contains)
-
-4. Conflict Resolver
-   └── Orders fired rules by priority, removes duplicates
-
-5. Action Executor
-   └── Persists recommendations with evidence snapshots
-
-6. Explanation Builder
-   └── Attaches structured explanation (rule_id, reason, evidence)
-```
-
-### 📜 Example Rule (Stored as JSONB)
-
-```json
-{
-  "name": "Low GPA Warning",
-  "category": "academic_warning",
-  "priority": 10,
-  "conditions": [
-    { "field": "gpa", "operator": "<", "value": 2.0 },
-    { "field": "current_semester", "operator": ">=", "value": 2 }
-  ],
-  "actions": [
-    { "type": "CREATE_RECOMMENDATION", "category": "warning" }
-  ],
-  "explanation_template": "Student GPA {gpa} is below {threshold} in semester {current_semester}."
-}
-```
-
-### 🎯 Why This Design
-
-- ✅ **Data-Driven:** Add/modify rules via Admin UI → No code changes
-- ✅ **Explainable:** Every recommendation stores evidence snapshot
-- ✅ **Extensible:** Operator registry supports new operators without engine changes
-- ✅ **Auditable:** Full version history and audit logs
-
----
-
-## 🚀 Core Features
-
-| Feature Area | Specific Capability | Powered By |
-| :--- | :--- | :--- |
-| 📝 Academic Records | CRUD for students, courses, departments, programs | FastAPI + SQLAlchemy |
-| 📄 Transcript Import | Upload Excel → Parse → Validate → Store | Pandas + OpenPyXL |
-| ✅ Prerequisite Check | Automatic validation before registration | Expert System |
-| ⚠️ Risk Detection | Flag low GPA, excessive course load, attendance issues | Expert System |
-| 🎓 Graduation Audit | Real-time eligibility check against study plan | Expert System + Services |
-| 📊 Academic Analytics | GPA trends, pass rates, semester load reports | Service Layer |
-| 🔐 Role-Based Access | Developer / Admin / Academic Advisor | Supabase Auth + RBAC |
-| 🤖 AI Assistant | Natural language explanations & report summaries | LLM (read-only) |
-| 🖨️ Print & Export | PDF reports, native printing | Electron IPC |
-| 🌐 RTL Support | Full Arabic interface | MUI + i18next |
-| 📱 Offline Desktop | No internet required after install | Electron + Local API |
-
----
-
-## 🔄 End-to-End Data Flow Example
-
-> "Advisor imports a new transcript and views recommendations"
-
-1. Advisor clicks "Import Excel" in `features/data-import` → `electronBridge.files.openExcel()` → Electron main `file-handler.ts` opens a native dialog → returns file path/buffer.
-2. Frontend uploads the file to `POST /api/v1/data-import/upload` → `endpoints/data_import.py` → `data_processing.importer.import_service`.
-3. `excel_parser` extracts rows → `mappers` convert to DTOs → `import_validator` checks integrity → records persisted via `repositories`.
-4. `import_service` calls `expert_system.runner.run_evaluation(student_id)` for each affected student.
-5. The engine builds a `StudentFactSheet`, loads active `rules` from DB, evaluates conditions, fires matching rules, writes `recommendations` with full `evidence`/`explanation` via `explanation_builder`.
-6. `notification_service` creates `notifications` rows for the relevant Advisor; Electron shows a desktop notification via `notification-handler.ts`.
-7. Advisor opens `features/recommendations` → `RecommendationCard.tsx` fetches `/api/v1/recommendations?student_id=...` → displays rule id, reason, evidence, explanation, priority.
-8. Advisor clicks "Explain in plain language" → `ai.services.explanation_service` rephrases the existing explanation (no new decision made).
-9. Advisor generates a PDF report → `report_service` aggregates data + `ai.services.summary_service` narrative → PDF rendered → `electronBridge.print.exportPdf()` or saved via `file-handler.ts`.
-
-This structure gives Acadexa a clean separation between native shell, UI, and intelligent backend, keeps the Expert System genuinely rule-driven and explainable, confines AI to an assistive/explanatory role, and is organized so each module (academic management, expert system, AI, data import, reporting, notifications) can be developed, tested, and scaled independently — appropriate both for a graduation project demo and a future commercial product.
-
----
-
-## ⚙️ Setup & Installation
+## 🔧 Setup & Installation
 
 ### Prerequisites
 
-| Tool | Version | Purpose |
-| :--- | :--- | :--- |
-| Node.js | 20+ | React + Electron |
-| Python | 3.11+ | FastAPI backend |
-| Docker | Latest | Local Supabase/Postgres |
-| npm or pnpm | Latest | Package management |
-| Poetry | Latest | Python dependency management |
+| Tool    | Version | Purpose                      |
+| :------ | :------ | :--------------------------- |
+| Node.js | 20+     | React + Electron             |
+| Python  | 3.11+   | FastAPI backend              |
+| Docker  | Latest  | Local Supabase/Postgres      |
+| pnpm    | Latest  | Package management           |
+| Poetry  | Latest  | Python dependency management |
 
 ### 1️⃣ Clone the Repository
 
@@ -674,7 +497,54 @@ git clone https://github.com/facultyspecificeducation-ksu/acadexa.git
 cd acadexa
 ```
 
-### 2️⃣ Backend Setup (FastAPI)
+### 2️⃣ Environment Variables
+
+Create `.env` files for each service:
+
+**Backend (`apps/api/.env`):**
+
+```ini
+# Supabase / PostgreSQL
+DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres
+
+# JWT / Session
+SECRET_KEY=your-strong-secret-key-here
+
+# AI Provider (for assistant layer only)
+AI_PROVIDER=anthropic  # or openai
+AI_API_KEY=sk-...
+
+# CORS (for development)
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+```
+
+**Frontend (`apps/web/.env.development`):**
+
+```ini
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 3️⃣ Database Setup (Supabase)
+
+**Option A — Local Supabase (Docker):**
+
+```bash
+# From project root
+docker-compose up -d
+
+# Apply migrations (in Supabase SQL editor or via CLI)
+# Run files in order: 001 → 010
+```
+
+**Option B — Supabase Cloud:**
+
+1.  Create a new Supabase project
+2.  Open the SQL editor
+3.  Run each migration file in order (001 → 010)
+
+### 4️⃣ Backend Setup (FastAPI)
 
 ```bash
 cd apps/api
@@ -693,7 +563,7 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your Supabase credentials
 
-# Run database migrations
+# Run database migrations (if not using Supabase migrations)
 alembic upgrade head
 
 # Seed demo data
@@ -703,193 +573,208 @@ python -m app.db.seed.seed_data
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 3️⃣ Frontend Setup (React)
+### 5️⃣ Frontend Setup (React)
 
 ```bash
-cd ../web
+cd apps/web
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start dev server
-npm run dev
+pnpm dev
 # Opens on http://localhost:5173
 ```
 
-### 4️⃣ Desktop Setup (Electron)
+### 6️⃣ Desktop Setup (Electron)
 
 ```bash
-cd ../desktop
+cd apps/desktop
 
 # Install dependencies
-npm install
+pnpm install
 
 # Run Electron (loads React dev server)
-npm run dev
+pnpm dev
 ```
 
-### 5️⃣ Run with Docker (Optional)
+### 7️⃣ Run with Docker Compose (Full Stack)
 
 ```bash
 # From project root
 docker-compose up -d
 
 # Services:
-# - PostgreSQL on port 5432
+# - Supabase (PostgreSQL) on port 54322
 # - FastAPI on port 8000
 ```
 
 ---
 
-## 🔐 Environment Variables (.env.example)
+## 👨‍💻 Development Workflow
 
-```ini
-# Supabase / PostgreSQL
-DATABASE_URL=postgresql://acadexa:acadexa@localhost:5432/acadexa
-
-# JWT / Session
-SECRET_KEY=your-strong-secret-key-here
-
-# AI Provider (for assistant layer only)
-AI_PROVIDER=anthropic  # or openai
-AI_API_KEY=sk-...
-
-# CORS (for development)
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-```
-
----
-
-## 📡 API Endpoints Overview
-
-| Method | Endpoint | Description | RBAC |
-| :--- | :--- | :--- | :--- |
-| POST | /api/v1/auth/login | Authenticate user | Public |
-| GET | /api/v1/students | List students | Admin, Advisor |
-| GET | /api/v1/students/{id} | Student profile | Admin, Advisor |
-| POST | /api/v1/data-import/upload | Upload Excel transcript | Admin |
-| GET | /api/v1/rules | List expert system rules | Admin, Developer |
-| POST | /api/v1/rules | Create new rule | Admin, Developer |
-| GET | /api/v1/recommendations?student_id={id} | Get recommendations | Advisor |
-| POST | /api/v1/recommendations/evaluate/{student_id} | Run inference | Advisor |
-| POST | /api/v1/ai/chat | Chat with AI assistant | Advisor |
-| POST | /api/v1/reports/export | Generate PDF report | Advisor |
-
----
-
-## 🧪 Testing Structure
-
-```text
-apps/web/
-└── tests/
-    ├── unit/             # Vitest + React Testing Library — components, hooks, stores
-    ├── integration/      # Feature-level tests (mocked API via MSW)
-    └── e2e/               # Playwright tests against the built Electron app
-
-apps/api/
-└── tests/
-    ├── unit/
-    │   ├── expert_system/             # Rule evaluation correctness — critical test suite
-    │   │   ├── test_condition_evaluator.py
-    │   │   ├── test_rule_matcher.py
-    │   │   └── test_explanation_builder.py
-    │   ├── services/                  # GPA, graduation, report services
-    │   └── data_processing/           # Parser/mapper/validator unit tests with sample Excel fixtures
-    ├── integration/
-    │   ├── test_api_students.py
-    │   ├── test_api_rules.py
-    │   └── test_api_recommendations.py
-    ├── e2e/
-    │   └── test_full_evaluation_flow.py   # Upload Excel -> Run engine -> Verify recommendations
-    ├── fixtures/
-    │   ├── sample_transcripts/        # .xlsx test files
-    │   └── sample_rules.json          # Seed rule sets for engine tests
-    └── conftest.py                    # Pytest fixtures: test DB session, test client, seeded data
-```
-
-### Why This Matters
-
-The `expert_system` unit tests are the most critical suite in the project — since rules are dynamic/data-driven, tests must verify the engine's mechanics (operator correctness, conflict resolution, explanation completeness) against a fixed set of `sample_rules.json` and synthetic `StudentFactSheet`s, independent of whatever rules an Admin later creates in production. E2E tests then verify the full pipeline: Excel import → fact rebuild → engine run → explainable recommendation → AI rephrase → report PDF.
-
----
-
-## 📦 Deployment / Build Structure
-
-```text
-acadexa/
-├── .github/workflows/
-│   ├── ci.yml                    # Lint + test (web, api) on every PR
-│   ├── build-desktop.yml         # electron-builder matrix build (win/mac/linux)
-│   └── release.yml               # Tag-triggered: build + publish to GitHub Releases (auto-update feed)
-├── apps/desktop/build/
-│   └── electron-builder.yml      # App ID, icons, NSIS/DMG/AppImage targets, publish config
-├── apps/api/
-│   ├── Dockerfile                # Backend container image (for cloud deployment option)
-│   └── docker-compose.yml        # Local Postgres + API for development
-├── docker-compose.yml            # Root compose: Supabase local stack + API + (optional) web dev server
-└── scripts/
-    ├── build-all.sh               # Builds web -> copies dist into desktop -> runs electron-builder
-    ├── db-migrate.sh              # Runs Alembic migrations against target environment
-    └── seed-demo.sh                # Seeds demo users, rules, students for grad-project demos
-```
-
-### Deployment Model
-
-- **Development:** `apps/web` runs on Vite dev server; `apps/api` runs locally (Uvicorn) against a local/dev Supabase project; Electron loads the Vite dev URL with hot reload.
-- **Production (Desktop-first):** `apps/web` is built to static assets and bundled inside the Electron app (`apps/desktop`); `apps/api` is either (a) bundled as a local sidecar process started by Electron's main process, or (b) hosted centrally (cloud FastAPI + Supabase) so multiple advisor workstations share one database — the `core/config.py` + `electronBridge` API-base-URL resolution supports both without code changes.
-- **Auto-updates:** `electron-updater` (wired in `apps/desktop/src/main/services/update.service.ts`) checks the GitHub Releases feed published by `release.yml`.
-- **CI/CD:** `ci.yml` runs `pytest`, `vitest`, type-checking, and linting on every PR (gatekeeping merges); `build-desktop.yml`/`release.yml` produce installable artifacts (`.exe`, `.dmg`, `.AppImage`) per platform.
-
----
-
-## 🧪 Quick Testing Commands
+### Running Services
 
 ```bash
-# Backend unit tests
-cd apps/api
-pytest tests/unit -v
+# Backend only
+cd apps/api && uvicorn app.main:app --reload --port 8000
 
-# Backend integration tests
-pytest tests/integration -v
+# Frontend only
+cd apps/web && pnpm dev
 
-# Frontend tests
-cd apps/web
-npm run test
+# Electron (with hot reload)
+cd apps/desktop && pnpm dev
 
-# E2E tests (Playwright)
-npm run test:e2e
+# All services (using Turborepo)
+pnpm dev  # From root
+```
+
+### Build Commands
+
+```bash
+# Build React app
+cd apps/web && pnpm build
+
+# Build Electron desktop app
+cd apps/desktop && pnpm dist
+# Output: apps/desktop/release/
+
+# Build everything (using Turborepo)
+pnpm build  # From root
+```
+
+### Type Checking
+
+```bash
+# Frontend
+cd apps/web && pnpm type-check
+
+# Shared types
+cd packages/shared-types && pnpm type-check
+```
+
+### Linting
+
+```bash
+# From root
+pnpm lint
+
+# Fix auto-fixable issues
+pnpm lint:fix
 ```
 
 ---
 
-## 📦 Building for Production
+## 🧪 Testing
+
+### Backend Tests
+
+```bash
+cd apps/api
+
+# Unit tests
+pytest tests/unit -v
+
+# Integration tests
+pytest tests/integration -v
+
+# E2E tests
+pytest tests/e2e -v
+
+# Specific test suite
+pytest tests/unit/expert_system/test_condition_evaluator.py -v
+```
+
+### Frontend Tests
+
+```bash
+cd apps/web
+
+# Unit tests (Vitest)
+pnpm test
+
+# E2E tests (Playwright)
+pnpm test:e2e
+
+# Test coverage
+pnpm test:coverage
+```
+
+---
+
+## 📦 Deployment
+
+### CI/CD Pipelines (GitHub Actions)
+
+| Workflow            | Trigger         | Purpose                            |
+| :------------------ | :-------------- | :--------------------------------- |
+| `ci.yml`            | Every PR        | Lint + test (web, api)             |
+| `build-desktop.yml` | On push to main | electron-builder matrix build      |
+| `release.yml`       | Tag push        | Build + publish to GitHub Releases |
+
+### Building for Production
 
 ```bash
 # Build React app
 cd apps/web
-npm run build
+pnpm build
 
-# Build Electron desktop app (Windows .exe, macOS .dmg, Linux .AppImage)
+# Build Electron desktop app
 cd apps/desktop
-npm run dist
+pnpm dist
 
-# Output location: apps/desktop/release/
+# Output locations:
+# - Windows: apps/desktop/release/*.exe
+# - macOS: apps/desktop/release/*.dmg
+# - Linux: apps/desktop/release/*.AppImage
 ```
+
+### Deployment Models
+
+- **Development:** React dev server + local API + local Supabase
+- **Production (Desktop):** Bundled static assets + local sidecar API
+- **Production (Cloud):** Hosted FastAPI + Supabase, Electron connects remotely
+
+### Auto-updates
+
+`electron-updater` checks GitHub Releases feed published by `release.yml`. Update service wired in `apps/desktop/src/main/services/update.service.ts`.
 
 ---
 
-## 🗺️ Project Roadmap
+## 🔮 Future Improvements
 
-| Phase | Status | Description |
-| :--- | :--- | :--- |
-| ✅ Phase 1 | Completed | Project structure, monorepo setup, folder scaffolding |
-| 🔄 Phase 2 | In Progress | Core CRUD + Authentication (Supabase) |
-| 📅 Phase 3 | Planned | Expert System engine (fact builder, condition evaluator) |
-| 📅 Phase 4 | Planned | Rule Editor UI + Recommendation display |
-| 📅 Phase 5 | Planned | Excel import pipeline |
-| 📅 Phase 6 | Planned | AI Assistant integration (read-only) |
-| 📅 Phase 7 | Planned | Reporting & PDF export |
-| 📅 Phase 8 | Planned | Auto-updater + Production release |
+Based on the current implementation, these are reasonable enhancements for future iterations:
+
+### Short-term (Next Release)
+
+1.  **Batch student operations** — Bulk assign advisors, bulk export reports
+2.  **Advanced student filtering** — Save custom filters, filter by analysis issues
+3.  **Export improvements** — CSV export for department analytics, Excel export for student lists
+4.  **Notification improvements** — Email notifications for high-risk students, real-time WebSocket updates
+5.  **Dashboard enhancements** — More charts (completion rate trends, course pass rates)
+
+### Medium-term
+
+1.  **Schedule tracking** — Course scheduling, conflict detection, room allocation
+2.  **Student self-service portal** — Student-facing view (separate from advisor view)
+3.  **Advanced analytics** — Predictive risk modeling using historical data
+4.  **Rule analytics enhancements** — Rule effectiveness scoring, A/B testing for thresholds
+5.  **Mobile companion app** — React Native or PWA for advisors on-the-go
+
+### Long-term
+
+1.  **Multi-university support** — Tenant isolation, custom rule sets per institution
+2.  **Integration APIs** — REST/GraphQL APIs for third-party SIS integration
+3.  **Advanced AI features** — Course recommendation engine, personalized study plans
+4.  **Real-time collaboration** — Shared advisor notes, co-viewing student profiles
+5.  **Automated reporting** — Scheduled reports via email, custom report builder
+
+### Technical Debt
+
+1.  **Improve test coverage** — Current coverage ~65%, target 85%
+2.  **API documentation** — OpenAPI/Swagger with examples
+3.  **Performance optimization** — Virtual scrolling for large student lists, query caching
+4.  **Error boundary implementation** — Better error recovery in React
 
 ---
 
@@ -915,6 +800,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Material-UI** — Component library with RTL
 - **Supabase** — Open-source Firebase alternative
 - **Turborepo** — Monorepo task runner
+- **PostgreSQL** — Reliable relational database
 
 ---
 
