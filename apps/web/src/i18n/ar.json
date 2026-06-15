@@ -1,5 +1,79 @@
 ﻿{
-  "_comment": "Arabic translation strings (default, RTL). Keys mirror en.json.",
-  "app.title": "أكاديكسا"
-}
+    "courses":  {
 
+                },
+    "reports":  {
+                    "department":  {
+
+                                   },
+                    "student":  {
+
+                                }
+                },
+    "import":  {
+                   "wizard":  {
+
+                              },
+                   "history":  {
+
+                               }
+               },
+    "students":  {
+                     "list":  {
+
+                              },
+                     "profile":  {
+
+                                 },
+                     "tabs":  {
+
+                              }
+                 },
+    "departments":  {
+
+                    },
+    "dashboard":  {
+                      "charts":  {
+
+                                 },
+                      "kpi":  {
+
+                              },
+                      "atRisk":  {
+
+                                 }
+                  },
+    "expertSystem":  {
+                         "rules":  {
+
+                                   },
+                         "gradeScale":  {
+
+                                        }
+                     },
+    "common":  {
+                   "status":  {
+
+                              },
+                   "actions":  {
+
+                               },
+                   "risk":  {
+
+                            }
+               },
+    "settings":  {
+                     "users":  {
+
+                               },
+                     "system":  {
+
+                                },
+                     "advisors":  {
+
+                                  }
+                 },
+    "curricula":  {
+
+                  }
+}
