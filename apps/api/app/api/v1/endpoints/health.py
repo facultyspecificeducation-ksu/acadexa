@@ -29,6 +29,4 @@ async def health_check() -> Dict:
     return {
         "status": "ok",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "version": "1.0.0",
-        "service": "acadexa-api"
     }
